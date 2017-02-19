@@ -17,9 +17,9 @@ Disclaimer: Work in Progress
   $ virtualenv . --python /usr/bin/python2.7 
   $ pip install -r requirements.txt
   ```
-- Edit extractor.py and add your Cookie from the BNZ Website or BNZ app (Google Chrome Inspector will help you here)
-- Run extractor.py, this will generate a data folder with your transactions
-- Run adapter.py, this will upload your transactions into elastic search. 
+- Edit `extractor.py` and add your Cookie from the BNZ Website or BNZ app (Google Chrome Inspector will help you here)
+- Run `extractor.py`, this will generate a data folder with your transactions
+- Run `adapter.py`, this will upload your transactions into elastic search. 
 
 # Credits 
 
