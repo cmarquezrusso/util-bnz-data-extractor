@@ -3,6 +3,26 @@ import time
 import json
 import os
 import errno
+from datetime import datetime, timedelta
+import threading
+import logging
+
+
+logging.basicConfig(level=logging.DEBUG,
+                    format='(%(threadName)-10s) %(message)s',
+                    )
+
+BASE_URL= "https://www.bnz.co.nz"
+ENDPOINT = BASE_URL + "/ib/api/accounts/"
+
+auth = os.getenv('auth','12345')
+
+import pprint; pprint.pprint(auth);
+
+startdate='2015-09-16'
+enddate=time.strftime("%Y-%m-%d")
+folder='data/'
+workers=0
 
 headers = {'Host':'www.bnz.co.nz',
            'Connection':'keep-alive',
@@ -15,26 +35,22 @@ headers = {'Host':'www.bnz.co.nz',
             'Referer':'https://www.bnz.co.nz/client/',
             'Accept-Encoding':'gzip, deflate, sdch, br',
             'Accept-Language':'en-US,en;q=0.8,es;q=0.6,it-IT;q=0.4,it;q=0.2',
-            'Cookie':'ADD-YOUR-KEY-HERE'}
-
-base_url= "https://www.bnz.co.nz"
-from_date="2015-01-01"
-end_date=time.strftime("%Y-%m-%d") # Today
-endpoint = base_url + "/ib/api/accounts/"
-folder = "data/"
+            'Cookie':auth}
+download_queue=[]
 
 
-def main():
-    for account in get_accounts():
-        r = requests.get(account['endpoint']+"/transactions?startDate="+from_date+"&endDate="+end_date,
+def download_worker():
+    for pending_download in download_queue:
+        r = requests.get(pending_download.get('ENDPOINT')+"/transactions?startDate="+pending_download.get('Start')+"&endDate="+pending_download.get('End'),
                          headers=headers, verify=True)
         if r.status_code == 200 :
-            save_json_to_file(account['nickname']+".json", r.json())
+            save_json_to_file(pending_download.get('file'), r.json())
         else:
-            print('Could not get data')
+            logging.error('Could not get data')
 
 
 def save_json_to_file(file, data):
+    logging.debug(file)
     if not os.path.exists(os.path.dirname(folder)):
         try:
             os.makedirs(os.path.dirname(folder))
@@ -46,14 +62,77 @@ def save_json_to_file(file, data):
 
 
 def get_accounts():
+    logging.info('Connecting to BNZ to get a list of Bank Accounts')
+    logging.info('Connected')
+
     accounts=[]
-    r = requests.get(endpoint, headers=headers, verify=True)
+    r = requests.get(ENDPOINT, headers=headers, verify=True, allow_redirects=False)
+    if r.status_code != 200:
+        logging.error("Response is not OK. Maybe your token has expired ¯\_(ツ)_/¯ ")
+        exit(1)
     accounts_info=r.json()
     for account in accounts_info['accountList']:
-        account_data={"id":account['id'],"nickname":account['nickname'],"endpoint": endpoint + account['id']}
+        account_data={"id":account['id'],"nickname":account['nickname'],"ENDPOINT": ENDPOINT + account['id']}
         accounts.append(account_data)
+        logging.info('Downloading data from account: ' + account.get('nickname'))
+    workers = len(accounts) #TODO: Multithreading for performance
+    logging.info(str(workers) + " accounts received from BNZ.")
+    logging.info(str(workers) + " workers will be used for downloading")
     return accounts
 
 
+def days_between(d1, d2):
+    d1 = datetime.strptime(d1, "%Y-%m-%d")
+    d2 = datetime.strptime(d2, "%Y-%m-%d")
+    return abs((d2 - d1).days)
+
+
+def weeks(days):
+    return days/7
+
+
+def get_intervals():
+    logging.debug('Building Date Intervals')
+    weeks_diff = weeks(days_between(startdate, enddate))
+    intervals = []
+    init_date = datetime.strptime(startdate, "%Y-%m-%d")
+    while (weeks_diff > 0):
+        interval = dict()
+        interval['Start'] = str(init_date.date())
+        interval['End']= str(init_date.date() + timedelta(days=7))
+        interval['WeekNumber'] = datetime.date(init_date).isocalendar()[1]
+        interval['Year'] = init_date.year
+        init_date = init_date + timedelta(days=8)
+        intervals.append(interval)
+        weeks_diff -= 1
+    return intervals
+
+
+def start():
+    transactions = list()
+    for account in get_accounts():
+        for interval in get_intervals():
+            transaction_info=dict()
+            transaction_info['file'] = (account['nickname']+str(interval.get('Year'))+"-W-" + str(interval.get('WeekNumber')) + ".json")
+            transaction_info['Start'] = interval.get('Start')
+            transaction_info['End'] = interval.get('End')
+            transaction_info['nickname']= account.get('nickname')
+            transaction_info['ENDPOINT']= account.get('ENDPOINT')
+            transactions.append(transaction_info)
+
+    logging.debug('Looking for existing files')
+
+    for transaction in transactions:
+        import os.path
+        full_path_file=str(folder)+"/"+str(transaction.get('file'))
+        if(os.path.isfile(full_path_file)):
+            logging.info('File' + full_path_file + ' already downloaded. Skipping...')
+        else:
+            logging.debug('File ' + full_path_file + ' not found. Adding it to the download queue.')
+            download_queue.append(transaction)
+
+    download_worker()
+
+
 if __name__ == "__main__":
-    main()
+    start()
