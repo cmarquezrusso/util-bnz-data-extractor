@@ -15,8 +15,8 @@ logging.basicConfig(level=logging.DEBUG,
 BASE_URL= "https://www.bnz.co.nz"
 ENDPOINT = BASE_URL + "/ib/api/accounts/"
 
-auth = os.getenv('auth','12345').replace(('\n', ''))
-import pprint; pprint.pprint(auth);
+auth = os.getenv('auth','INVALID_TOKEN_DEFAULT\n')
+auth = auth.replace('\n', '')
 
 startdate='2015-09-16'
 enddate=time.strftime("%Y-%m-%d")
@@ -118,7 +118,6 @@ def start():
             transaction_info['nickname']= account.get('nickname')
             transaction_info['ENDPOINT']= account.get('ENDPOINT')
             transactions.append(transaction_info)
-
     logging.debug('Looking for existing files')
 
     for transaction in transactions:
