@@ -68,7 +68,7 @@ def get_accounts():
     accounts=[]
     r = requests.get(ENDPOINT, headers=headers, verify=True, allow_redirects=False)
     if r.status_code != 200:
-        logging.error("Response is not OK. Maybe your token has expired ¯\_(ツ)_/¯ ")
+        logging.error("Response is not OK. Maybe your token has expired")
         exit(1)
     accounts_info=r.json()
     for account in accounts_info['accountList']:
