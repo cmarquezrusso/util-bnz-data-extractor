@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+  database:
+    image: mongo
+    ports:
+      - "27017:27017"
+  message-queue:
+    image: redis:3.0-alpine
+    ports:
+      - "6379:6379"
