@@ -34,7 +34,7 @@ logging.basicConfig(level=logging.DEBUG,
 
 BASE_URL= "https://www.bnz.co.nz"
 ENDPOINT = BASE_URL + "/ib/api/accounts/"
-mocked=True
+mocked=False
 
 auth = os.getenv('auth','INVALID_TOKEN_DEFAULT\n')
 auth = auth.replace('\n', '')
@@ -103,7 +103,6 @@ def main():
             try:
                 result = db.bank.insert_one(period)
                 logging.info("Added new record in db " + str(result.inserted_id))
-                #TODO: Send MSG Queue
                 logging.info('Sending event to the message queue. ID ' + str(result.inserted_id) + ' is a new record')
                 job = q.enqueue(get_transactions, result.inserted_id)
 

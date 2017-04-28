@@ -9,3 +9,44 @@ services:
     image: redis:3.0-alpine
     ports:
       - "6379:6379"
+  main:
+    build: .
+    depends_on:
+      - database
+      - message-queue
+    links:
+      - database
+      - message-queue
+    restart: always
+    environment:
+    - mongodb_endpoint=database:27017
+    - redis_endpoint=message-queue
+  worker-1:
+    build:
+      context: .
+      dockerfile: Dockerfile-Worker1
+    depends_on:
+      - database
+      - message-queue
+    links:
+      - database
+      - message-queue
+    restart: always
+    environment:
+    - mongodb_endpoint=database:27017
+    - redis_endpoint=message-queue
+  elasticsearch:
+    build: elasticsearch/
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+  kibana:
+    build: kibana/
+    volumes:
+      - ./kibana/config/:/etc/kibana/
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
