@@ -47,14 +47,12 @@ mongodb_host = os.getenv('mongodb_endpoint','docker:27017')
 client = MongoClient(host=[mongodb_host])
 db = client.test
 
-mocked=True;
-
 
 def get_transactions(id):
     logging.debug('Getting data from period: ' + str(id))
     transaction = db.bank.find_one(id)
     start_period=transaction.get('Period')
-    end_period=str((datetime.strptime(transaction.get('Period'), '%Y-%m-%d') + timedelta(days=7)).date())
+    end_period=str((datetime.strptime(transaction.get('Period'), '%Y-%m-%d') + timedelta(days=6)).date()) #FIXME: Weekly
     endpoint = transaction.get('Account').get('ENDPOINT') + '/transactions?startDate=' + start_period + '&endDate=' + end_period
     r = requests.get(endpoint,headers=headers, verify=True) #FIXME
     if r.status_code == 200:
@@ -100,8 +98,6 @@ def import_data_in_elastic_search(id):
 
 
 def send_to_elastic_search(document,index):
-    logging.debug('Endpoint: ' + str(elasticsearch_endpoint)+str(index))
-    logging.debug('Headers: ' + str(esheaders))
-    logging.debug('Data: ' + json.dumps(document))
+    logging.info('Importing data into elastic search')
     request = requests.put(elasticsearch_endpoint+str(index), headers=esheaders, json=document)
     print(request.status_code)

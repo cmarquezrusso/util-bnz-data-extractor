@@ -34,7 +34,6 @@ logging.basicConfig(level=logging.DEBUG,
 
 BASE_URL= "https://www.bnz.co.nz"
 ENDPOINT = BASE_URL + "/ib/api/accounts/"
-mocked=False
 
 auth = os.getenv('auth','INVALID_TOKEN_DEFAULT\n')
 auth = auth.replace('\n', '')
@@ -60,15 +59,6 @@ headers = {'Host':'www.bnz.co.nz',
 
 def get_accounts(): #TODO: Test 0 account, 1 account and 3 accounts. Tests invalid login.
 
-    if mocked:
-        logging.debug("Using mock data")
-        accounts = [
-            {"id": '123', "nickname": 'EFTPOS', "ENDPOINT": ENDPOINT + str(uuid.uuid1())},
-            {"id": '456', "nickname": 'SAVINGS', "ENDPOINT": ENDPOINT + str(uuid.uuid1())},
-            {"id": '789', "nickname": 'HOLIDAYS', "ENDPOINT": ENDPOINT + str(uuid.uuid1())},
-            {"id": '987', "nickname": 'MUM', "ENDPOINT": ENDPOINT + str(uuid.uuid1())}
-        ]
-        return accounts
     logging.info('Connecting to BNZ to get a list of Bank Accounts')
     logging.info('Connected')
 
