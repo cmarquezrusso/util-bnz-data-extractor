@@ -1,48 +1,34 @@
 #!/usr/bin/env python
 
 import requests
-import time
-import json
 import os
-import errno
-import datetime
 from datetime import date, datetime, timedelta
 import logging
 from redis import Redis
-import pprint
-import pdb
 import pandas as pd
 from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError
-import uuid
 from rq import Queue
 from worker import get_transactions # added import!
 
 
-
 mongodb_host = os.getenv('mongodb_endpoint','docker:27017')
 redis_host = os.getenv('redis_endpoint','docker')
-
-
 client = MongoClient(host=[mongodb_host])
 db = client.test
-
 q = Queue('download-queue',connection=Redis(host=redis_host))
-
 logging.basicConfig(level=logging.DEBUG,
                     format='(%(threadName)-10s) %(message)s')
-
 BASE_URL= "https://www.bnz.co.nz"
 ENDPOINT = BASE_URL + "/ib/api/accounts/"
-
 auth = os.getenv('auth','INVALID_TOKEN_DEFAULT\n')
 auth = auth.replace('\n', '')
+verify=False
 
 start_date_string=os.getenv('start_date','2014-09-16')
 start_date = datetime.strptime(start_date_string,'%Y-%m-%d').date()
 end_date = date.today()
 freq=os.getenv('freq','W')
-
 headers = {'Host':'www.bnz.co.nz',
            'Connection':'keep-alive',
            'Pragma':'no-cache',
@@ -63,10 +49,9 @@ def get_accounts(): #TODO: Test 0 account, 1 account and 3 accounts. Tests inval
     logging.info('Connected')
 
     accounts=[]
-    r = requests.get(ENDPOINT, headers=headers, verify=True, allow_redirects=False)
+    r = requests.get(ENDPOINT, headers=headers, verify=verify, allow_redirects=False)
     if r.status_code != 200:
         logging.error("Response is not OK. Maybe your token has expired")
-        exit(-1)
     accounts_info=r.json()
     for account in accounts_info['accountList']:
         account_data={"id":account['id'],"nickname":account['nickname'],"ENDPOINT": ENDPOINT + account['id']}

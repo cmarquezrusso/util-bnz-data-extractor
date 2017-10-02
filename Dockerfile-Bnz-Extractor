@@ -1,0 +1,3 @@
+FROM python:2.7-onbuild
+
+CMD env auth=$auth start_date=$start_date freq='w' python ./bnz-extractor.py

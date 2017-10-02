@@ -1,40 +1,73 @@
-version: '2'
+version: '3'
 
 services:
+  bnz-extractor:
+    build:
+      context: .
+      dockerfile: Dockerfile-Bnz-Extractor
+    depends_on:
+      - database
+      - message-queue
+    links:
+      - database
+      - message-queue
+    restart: always
+    environment:
+    - mongodb_endpoint=database:27017
+    - redis_endpoint=message-queue
+    - auth=1234
+    - start_date=2015-01-16
+  download-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile-Download-Worker
+    depends_on:
+      - database
+      - message-queue
+    links:
+      - database
+      - message-queue
+    restart: always
+    environment:
+    - mongodb_endpoint=database:27017
+    - redis_endpoint=redis://message-queue
+    - auth=1234
+  processor-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile-Processor-Worker
+    depends_on:
+      - database
+      - message-queue
+    links:
+      - database
+      - message-queue
+    restart: always
+    environment:
+    - mongodb_endpoint=database:27017
+    - redis_endpoint=redis://message-queue
+  workers-dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile-Workers-Dashboard
+    depends_on:
+      - message-queue
+    links:
+      - message-queue
+    restart: always
+    environment:
+    - redis=message-queue
+    ports:
+    - "9181:9181"
   database:
     image: mongo
     ports:
       - "27017:27017"
+      - "28018:28018"
   message-queue:
     image: redis:3.0-alpine
     ports:
       - "6379:6379"
-  main:
-    build: .
-    depends_on:
-      - database
-      - message-queue
-    links:
-      - database
-      - message-queue
-    restart: always
-    environment:
-    - mongodb_endpoint=database:27017
-    - redis_endpoint=message-queue
-  worker-1:
-    build:
-      context: .
-      dockerfile: Dockerfile-Worker1
-    depends_on:
-      - database
-      - message-queue
-    links:
-      - database
-      - message-queue
-    restart: always
-    environment:
-    - mongodb_endpoint=database:27017
-    - redis_endpoint=message-queue
   elasticsearch:
     build: elasticsearch/
     ports:

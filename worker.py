@@ -1,22 +1,20 @@
 #!/usr/bin/env python
 
 import logging
-import pprint
 from pymongo import MongoClient
 import os
 import requests
 from datetime import datetime
 from datetime import timedelta
-import pdb
-import time
 from rq import Queue
 from redis import Redis
-import json
 import uuid
 
 logging.basicConfig(level=logging.DEBUG,
                     format='(%(threadName)-10s) %(message)s',
                     )
+
+verify=False
 
 elasticsearch_host = os.getenv('elasticsearch_host','http://docker:9200')
 
@@ -41,6 +39,9 @@ headers = {'Host':'www.bnz.co.nz',
 
 
 redis_host = os.getenv('redis_endpoint','docker')
+
+logging.debug("Worker: Redis info: " + redis_host)
+
 q = Queue('process-queue',connection=Redis(host=redis_host))
 
 mongodb_host = os.getenv('mongodb_endpoint','docker:27017')
@@ -54,7 +55,7 @@ def get_transactions(id):
     start_period=transaction.get('Period')
     end_period=str((datetime.strptime(transaction.get('Period'), '%Y-%m-%d') + timedelta(days=6)).date()) #FIXME: Weekly
     endpoint = transaction.get('Account').get('ENDPOINT') + '/transactions?startDate=' + start_period + '&endDate=' + end_period
-    r = requests.get(endpoint,headers=headers, verify=True) #FIXME
+    r = requests.get(endpoint,headers=headers, verify=verify) #FIXME
     if r.status_code == 200:
         logging.debug('OK! Marking as Downloaded and adding transactions data to the database')
         transaction['Transactions']= r.json()
