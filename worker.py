@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.DEBUG,
 
 verify=False
 
-elasticsearch_host = os.getenv('elasticsearch_host','http://docker:9200')
+elasticsearch_host = os.getenv('elasticsearch_host','http://192.168.99.100:9200')
 
 elasticsearch_endpoint=elasticsearch_host+'/bank/transactions/'
 esheaders = {'Accept':'application/json','Content-Type':'application/json'}
@@ -38,13 +38,13 @@ headers = {'Host':'www.bnz.co.nz',
             'Cookie':auth}
 
 
-redis_host = os.getenv('redis_endpoint','docker')
+redis_host = os.getenv('redis_endpoint','192.168.99.100')
 
 logging.debug("Worker: Redis info: " + redis_host)
 
 q = Queue('process-queue',connection=Redis(host=redis_host))
 
-mongodb_host = os.getenv('mongodb_endpoint','docker:27017')
+mongodb_host = os.getenv('mongodb_endpoint','192.168.99.100:27017')
 client = MongoClient(host=[mongodb_host])
 db = client.test
 

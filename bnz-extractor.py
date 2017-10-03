@@ -12,8 +12,8 @@ from rq import Queue
 from worker import get_transactions # added import!
 
 
-mongodb_host = os.getenv('mongodb_endpoint','docker:27017')
-redis_host = os.getenv('redis_endpoint','docker')
+mongodb_host = os.getenv('mongodb_endpoint','192.168.99.100:27017')
+redis_host = os.getenv('redis_endpoint','192.168.99.100')
 client = MongoClient(host=[mongodb_host])
 db = client.test
 q = Queue('download-queue',connection=Redis(host=redis_host))
