@@ -38,9 +38,9 @@ Kibana->Elastic Search: Discovery
 
 # Getting started
 
-- Install project dependencies by typing 
+- Install project dependencies by typing
   ```
-  $ virtualenv . 
+  $ virtualenv .
   $ pip install -r requirements.txt
   ```
 
@@ -62,17 +62,17 @@ docker-machine ssh
 
  sudo sysctl -w vm.max_map_count=262144
  exit
- 
+
 ```
 
 Starting the services that we will conect with
 ```
-docker-compose up elasticsearch kibana database message-queue workers-dashboard 
+docker-compose up elasticsearch kibana database message-queue workers-dashboard node
 ```
 Optional: Testing with nmap that every service is running
 
 ```
-nmap 192.168.99.100 -p 27017,9181,5601,6379,9200,9300 # Just to test that everything is on place
+nmap 192.168.99.100 -p 27017,9181,5601,6379,9200,9300,3000 # Just to test that everything is on place
 ```
 
 # Running the project (Magic)
@@ -94,8 +94,6 @@ Starting the main app, who get the accounts ids and builds the timeslots into th
 env auth='' start_date='2014-06-01' freq='w' python bnz-extractor.py # Start the app that creates the initial structure
 ```
 
-# Credits 
+# Credits
 
 [Cristian Russo](http://www.cristianmarquez.me)
-
-

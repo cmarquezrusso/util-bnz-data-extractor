@@ -83,3 +83,9 @@ services:
       - "5601:5601"
     depends_on:
       - elasticsearch
+  node:
+    build: node/
+    volumes:
+      - ./node/:/app
+    ports:
+      - "3000:3000"
