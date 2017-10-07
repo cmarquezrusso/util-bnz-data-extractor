@@ -23,7 +23,7 @@ BASE_URL= "https://www.bnz.co.nz"
 ENDPOINT = BASE_URL + "/ib/api/accounts/"
 auth = os.getenv('auth','INVALID_TOKEN_DEFAULT\n')
 auth = auth.replace('\n', '')
-verify=False
+verify=True
 
 start_date_string=os.getenv('start_date','2014-09-16')
 start_date = datetime.strptime(start_date_string,'%Y-%m-%d').date()

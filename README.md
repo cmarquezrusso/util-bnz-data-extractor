@@ -13,6 +13,7 @@ Disclaimer: Work in Progress
 - Docker
 - Docker-machine
 - Docker-compose
+- *Kubernetes support soon*
 
 # Architecture
 
@@ -35,6 +36,7 @@ Kibana->Elastic Search: Discovery
 - Transactions are imported on Elastic Search for analysis
 - Workers are managed by RQ using REDIS
 
+ELK stack is based on https://github.com/deviantony/docker-elk
 
 # Getting started
 
@@ -93,6 +95,12 @@ Starting the main app, who get the accounts ids and builds the timeslots into th
 ```
 env auth='' start_date='2014-06-01' freq='w' python bnz-extractor.py # Start the app that creates the initial structure
 ```
+# Additional info
+
+- Kibana: [http://192.168.99.100:5601](http://192.168.99.100:5601)
+- Elastic Search: [http://192.168.99.100:9200](http://192.168.99.100:9200)
+- RQ dashboard: [http://192.168.99.100:9181](http://192.168.99.100:9181)
+
 
 # Credits
 

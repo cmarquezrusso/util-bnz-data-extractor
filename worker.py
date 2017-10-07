@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.DEBUG,
                     format='(%(threadName)-10s) %(message)s',
                     )
 
-verify=False
+verify=True
 
 elasticsearch_host = os.getenv('elasticsearch_host','http://192.168.99.100:9200')
 
