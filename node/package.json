@@ -1,0 +1,23 @@
+{
+	"name": "bnz-hackaton-node",
+	"version": "1.0.0",
+	"main": "index.js",
+	"scripts": {
+		"start": "nodemon -L app.js",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/cristian04/util-bnz-data-extractor.git"
+	},
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/cristian04/util-bnz-data-extractor/issues"
+	},
+	"homepage": "https://github.com/cristian04/util-bnz-data-extractor#readme",
+	"dependencies": {
+		"express": "^4.16.1",
+		"nodemon": "^1.12.1"
+	}
+}
