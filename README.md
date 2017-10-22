@@ -1,3 +1,7 @@
+# DEPRECATED
+
+This was moved into https://github.com/cristian04/bank-statements-data a more extensive solution.
+
 # util-bnz-data-extractor
 A ~~simple~~ python ~~script~~ to consume the BNZ API and export it to ElasticSearch
 
